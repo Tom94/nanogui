@@ -260,6 +260,8 @@ std::string file_dialog(const std::vector<std::pair<std::string, std::string>> &
     return std::string(ofn.lpstrFile);
 #else
     char buffer[FILE_DIALOG_MAX_BUFFER];
+    buffer[0] = '\0';
+
     std::string cmd = "/usr/bin/zenity --file-selection ";
     if (save)
         cmd += "--save ";
@@ -345,6 +347,7 @@ std::vector<std::string> file_dialog_multiple(const std::vector<std::pair<std::s
     return result;
 #else
     char buffer[FILE_DIALOG_MAX_BUFFER];
+    buffer[0] = '\0';
 
     // The safest separator for multiple selected paths is /, since / can never occur
     // in file names. Only where two paths are concatenated will there be two / following
