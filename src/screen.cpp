@@ -420,7 +420,7 @@ void Screen::drawWidgets() {
 
                 h = (bounds[2] - bounds[0]) / 2;
             }
-            nvgGlobalAlpha(mNVGContext, 0.8);
+            nvgGlobalAlpha(mNVGContext, 0.8f);
 
             nvgBeginPath(mNVGContext);
             nvgFillColor(mNVGContext, Color(0, 255));
