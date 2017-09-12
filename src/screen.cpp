@@ -485,10 +485,12 @@ bool Screen::cursorPosCallbackEvent(double x, double y) {
 
         if (!mDragActive) {
             Widget *widget = findWidget(p);
-            if (widget != nullptr && widget->cursor() != mCursor) {
-                mCursor = widget->cursor();
-                glfwSetCursor(mGLFWWindow, mCursors[(int) mCursor]);
+            while (widget && widget->cursor() == Cursor::Arrow) {
+                widget = widget->parent();
             }
+
+            mCursor = widget ? widget->cursor() : Cursor::Arrow;
+            glfwSetCursor(mGLFWWindow, mCursors[(int)mCursor]);
         } else {
             ret = mDragWidget->mouseDragEvent(
                 p - mDragWidget->parent()->absolutePosition(), p - mMousePos,
@@ -533,7 +535,12 @@ bool Screen::mouseButtonCallbackEvent(int button, int action, int modifiers) {
                 false, mModifiers);
 
         if (dropWidget != nullptr && dropWidget->cursor() != mCursor) {
-            mCursor = dropWidget->cursor();
+            Widget *widget = dropWidget;
+            while (widget && widget->cursor() == Cursor::Arrow) {
+                widget = widget->parent();
+            }
+
+            mCursor = widget ? widget->cursor() : Cursor::Arrow;
             glfwSetCursor(mGLFWWindow, mCursors[(int) mCursor]);
         }
 
