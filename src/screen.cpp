@@ -62,7 +62,7 @@ static float get_pixel_ratio(GLFWwindow *window) {
     if (GetDpiForMonitor_) {
         uint32_t dpiX, dpiY;
         if (GetDpiForMonitor_(monitor, 0 /* effective DPI */, &dpiX, &dpiY) == S_OK)
-            return std::round(dpiX / 96.0);
+            return dpiX / 96.0;
     }
     return 1.f;
 #elif defined(__linux__)
@@ -376,8 +376,7 @@ void Screen::drawWidgets() {
     glfwGetWindowSize(mGLFWWindow, &mSize[0], &mSize[1]);
 
 #if defined(_WIN32) || defined(__linux__)
-    mSize = (mSize / mPixelRatio).cast<int>();
-    mFBSize = (mSize * mPixelRatio).cast<int>();
+    mSize = (mSize.cast<float>() / mPixelRatio).cast<int>();
 #else
     /* Recompute pixel ratio on OSX */
     if (mSize[0])
@@ -475,7 +474,7 @@ bool Screen::cursorPosCallbackEvent(double x, double y) {
     Vector2i p((int) x, (int) y);
 
 #if defined(_WIN32) || defined(__linux__)
-    p /= mPixelRatio;
+    p = (p.cast<float>() / mPixelRatio).cast<int>();
 #endif
 
     bool ret = false;
@@ -614,12 +613,16 @@ bool Screen::resizeCallbackEvent(int, int) {
     glfwGetFramebufferSize(mGLFWWindow, &fbSize[0], &fbSize[1]);
     glfwGetWindowSize(mGLFWWindow, &size[0], &size[1]);
 
-#if defined(_WIN32) || defined(__linux__)
-    size /= mPixelRatio;
-#endif
-
-    if (mFBSize == Vector2i(0, 0) || size == Vector2i(0, 0))
+    if (fbSize == Vector2i(0, 0) || size == Vector2i(0, 0))
         return false;
+
+#if defined(_WIN32) || defined(__linux__)
+    size = (size.cast<float>() / mPixelRatio).cast<int>();
+#else
+    /* Recompute pixel ratio on OSX */
+    if (size[0])
+        mPixelRatio = (float)fbSize[0] / (float)size[0];
+#endif
 
     mFBSize = fbSize; mSize = size;
     mLastInteraction = glfwGetTime();
