@@ -185,6 +185,7 @@ public:
     void drawWidgets();
 
 protected:
+    std::vector<std::string> mPendingDrops;
     GLFWwindow *mGLFWWindow;
     NVGcontext *mNVGContext;
     GLFWcursor *mCursors[(int) Cursor::CursorCount];

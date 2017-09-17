@@ -122,14 +122,34 @@ Screen::Screen(const Vector2i &size, const std::string &caption, bool resizable,
     glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
     glfwWindowHint(GLFW_RESIZABLE, resizable ? GL_TRUE : GL_FALSE);
 
+    __nanogui_screens[0] = this;
+    auto dropCallback = [](GLFWwindow *w, int count, const char **filenames) {
+        auto it = __nanogui_screens.find(w);
+        if (it == __nanogui_screens.end()) {
+            it = __nanogui_screens.find(0);
+            if (it != __nanogui_screens.end()) {
+                for (int i = 0; i < count; ++i) {
+                    it->second->mPendingDrops.emplace_back(filenames[i]);
+                }
+            }
+
+            return;
+        }
+
+        Screen *s = it->second;
+        if (!s->mProcessEvents)
+            return;
+        s->dropCallbackEvent(count, filenames);
+    };
+
     if (fullscreen) {
         GLFWmonitor *monitor = glfwGetPrimaryMonitor();
         const GLFWvidmode *mode = glfwGetVideoMode(monitor);
         mGLFWWindow = glfwCreateWindow(mode->width, mode->height,
-                                       caption.c_str(), monitor, nullptr);
+                                       caption.c_str(), monitor, nullptr, dropCallback);
     } else {
         mGLFWWindow = glfwCreateWindow(size.x(), size.y(),
-                                       caption.c_str(), nullptr, nullptr);
+                                       caption.c_str(), nullptr, nullptr, dropCallback);
     }
 
     if (!mGLFWWindow)
@@ -210,18 +230,6 @@ Screen::Screen(const Vector2i &size, const std::string &caption, bool resizable,
             if (!s->mProcessEvents)
                 return;
             s->charCallbackEvent(codepoint);
-        }
-    );
-
-    glfwSetDropCallback(mGLFWWindow,
-        [](GLFWwindow *w, int count, const char **filenames) {
-            auto it = __nanogui_screens.find(w);
-            if (it == __nanogui_screens.end())
-                return;
-            Screen *s = it->second;
-            if (!s->mProcessEvents)
-                return;
-            s->dropCallbackEvent(count, filenames);
         }
     );
 
@@ -306,6 +314,7 @@ void Screen::initialize(GLFWwindow *window, bool shutdownGLFWOnDestruct) {
     mDragActive = false;
     mLastInteraction = glfwGetTime();
     mProcessEvents = true;
+    __nanogui_screens.erase(0);
     __nanogui_screens[mGLFWWindow] = this;
 
     for (int i=0; i < (int) Cursor::CursorCount; ++i)
