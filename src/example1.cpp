@@ -545,20 +545,20 @@ public:
             "}"
         );
 
-        MatrixXu indices(3, 2); /* Draw 2 triangles */
-        indices.col(0) << 0, 1, 2;
-        indices.col(1) << 2, 3, 0;
+        MatrixXu indices(2, 2); /* Draw 2 lines */
+        indices.col(0) << 0, 1;
+        indices.col(1) << 2, 3;
 
         MatrixXf positions(3, 4);
         positions.col(0) << -1, -1, 0;
-        positions.col(1) <<  1, -1, 0;
-        positions.col(2) <<  1,  1, 0;
+        positions.col(1) <<  1, 1, 0;
+        positions.col(2) <<  1, -1, 0;
         positions.col(3) << -1,  1, 0;
 
         mShader.bind();
         mShader.uploadIndices(indices);
         mShader.uploadAttrib("position", positions);
-        mShader.setUniform("intensity", 0.5f);
+        mShader.setUniform("intensity", 1.0f);
     }
 
     ~ExampleApplication() {
@@ -591,14 +591,23 @@ public:
 
         Matrix4f mvp;
         mvp.setIdentity();
-        mvp.topLeftCorner<3,3>() = Matrix3f(Eigen::AngleAxisf((float) glfwGetTime(),  Vector3f::UnitZ())) * 0.25f;
-
-        mvp.row(0) *= (float) mSize.y() / (float) mSize.x();
+        //mvp.row(0) *= (float) mSize.y() / (float) mSize.x();
 
         mShader.setUniform("modelViewProj", mvp);
 
+        Vector3f p = { 2 * (float)mMousePos.x() / mSize.x() - 1, 1 - 2 * (float)mMousePos.y() / mSize.y(), 0 };
+
+        MatrixXf positions(3, 4);
+        positions.col(0) = p + Vector3f{0.5f, 0.5f, 0};
+        positions.col(1) = p + Vector3f{-0.5f, -0.5f, 0};
+        positions.col(2) = p + Vector3f{0.5f, -0.5f, 0};
+        positions.col(3) = p + Vector3f{-0.5f, 0.5f, 0};
+
+        mShader.bind();
+        mShader.uploadAttrib("position", positions);
+
         /* Draw 2 triangles starting at index 0 */
-        mShader.drawIndexed(GL_TRIANGLES, 0, 2);
+        mShader.drawIndexed(GL_LINES, 0, 2);
     }
 private:
     nanogui::ProgressBar *mProgress;
