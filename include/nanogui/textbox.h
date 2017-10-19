@@ -84,7 +84,7 @@ public:
     virtual void save(Serializer &s) const override;
     virtual bool load(Serializer &s) override;
 protected:
-    bool checkFormat(const std::string& input,const std::string& format);
+    virtual bool checkFormat(const std::string& input,const std::string& format);
     bool copySelection();
     void pasteFromClipboard();
     bool deleteSelection();
@@ -147,10 +147,7 @@ public:
     }
 
     Scalar value() const {
-        std::istringstream iss(TextBox::value());
-        Scalar value = 0;
-        iss >> value;
-        return value;
+        return toScalar(TextBox::value());
     }
 
     void setValue(Scalar value) {
@@ -174,15 +171,26 @@ public:
     void setValueIncrement(Scalar incr) {
         mValueIncrement = incr;
     }
+
     void setMinValue(Scalar minValue) {
         mMinValue = minValue;
     }
+
     void setMaxValue(Scalar maxValue) {
         mMaxValue = maxValue;
     }
+
     void setMinMaxValues(Scalar minValue, Scalar maxValue) {
         setMinValue(minValue);
         setMaxValue(maxValue);
+    }
+
+    bool checkFormat(const std::string &input, const std::string &format) override {
+        if (!TextBox::checkFormat(input, format))
+            return false;
+
+        Scalar value = toScalar(input);
+        return value >= mMinValue && value <= mMaxValue;
     }
 
     virtual bool mouseButtonEvent(const Vector2i &p, int button, bool down, int modifiers) override {
@@ -232,6 +240,13 @@ public:
         return false;
     }
 private:
+    Scalar toScalar(const std::string& valueString) const {
+        std::istringstream iss(valueString);
+        Scalar value = 0;
+        iss >> value;
+        return value;
+    }
+
     Scalar mMouseDownValue;
     Scalar mValueIncrement;
     Scalar mMinValue, mMaxValue;
