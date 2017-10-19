@@ -76,8 +76,8 @@ Vector2i TextBox::preferredSize(NVGcontext *ctx) const {
         sw = 14.f;
     }
 
-    float ts = nvgTextBounds(ctx, 0, 0, mValue.c_str(), nullptr, nullptr);
-    size(0) = size(1) + ts + uw + sw;
+    float ts = mFixedTextWidth == -1 ? nvgTextBounds(ctx, 0, 0, mValue.c_str(), nullptr, nullptr) : mFixedTextWidth;
+    size(0) = ts + uw + sw;
     return size;
 }
 

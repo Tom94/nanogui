@@ -65,6 +65,8 @@ public:
 
     void setPlaceholder(const std::string &placeholder) { mPlaceholder = placeholder; }
 
+    void setFixedTextWidth(int fixedTextWidth) { mFixedTextWidth = fixedTextWidth; }
+
     /// Set the \ref Theme used to draw this widget
     virtual void setTheme(Theme *theme) override;
 
@@ -122,6 +124,7 @@ protected:
     int mMouseDownModifier;
     float mTextOffset;
     double mLastClick;
+    int mFixedTextWidth = -1;
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
