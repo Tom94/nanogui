@@ -60,9 +60,6 @@ public:
     virtual void save(Serializer &s) const override;
     virtual bool load(Serializer &s) override;
 protected:
-    /// Internal helper function to maintain nested window position values; overridden in \ref Popup
-    virtual void refreshRelativePlacement();
-protected:
     std::string mTitle;
     Widget *mButtonPanel;
     bool mModal;

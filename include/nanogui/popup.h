@@ -30,7 +30,7 @@ public:
     enum Side { Left = 0, Right };
 
     /// Create a new popup parented to a screen (first argument) and a parent window
-    Popup(Widget *parent, Window *parentWindow);
+    Popup(Widget *parent, Widget *parentWindow);
 
     /// Return the anchor position in the parent window; the placement of the popup is relative to it
     void setAnchorPos(const Vector2i &anchorPos) { mAnchorPos = anchorPos; }
@@ -48,9 +48,9 @@ public:
     Side side() const { return mSide; }
 
     /// Return the parent window of the popup
-    Window *parentWindow() { return mParentWindow; }
+    Widget *parentWindow() { return mParentWindow; }
     /// Return the parent window of the popup
-    const Window *parentWindow() const { return mParentWindow; }
+    const Widget *parentWindow() const { return mParentWindow; }
 
     /// Invoke the associated layout generator to properly place child widgets, if any
     virtual void performLayout(NVGcontext *ctx) override;
@@ -65,7 +65,7 @@ protected:
     virtual void refreshRelativePlacement() override;
 
 protected:
-    Window *mParentWindow;
+    Widget *mParentWindow;
     Vector2i mAnchorPos;
     int mAnchorHeight;
     Side mSide;

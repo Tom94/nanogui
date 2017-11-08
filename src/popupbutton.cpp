@@ -13,6 +13,7 @@
 #include <nanogui/entypo.h>
 #include <nanogui/theme.h>
 #include <nanogui/opengl.h>
+#include <nanogui/screen.h>
 #include <nanogui/serializer/core.h>
 
 NAMESPACE_BEGIN(nanogui)
@@ -23,8 +24,7 @@ PopupButton::PopupButton(Widget *parent, const std::string &caption, int buttonI
 
     setFlags(Flags::ToggleButton | Flags::PopupButton);
 
-    Window *parentWindow = window();
-    mPopup = new Popup(parentWindow->parent(), window());
+    mPopup = new Popup(parent->screen(), parent);
     mPopup->setSize(Vector2i(320, 250));
     mPopup->setVisible(false);
 }
@@ -65,7 +65,7 @@ void PopupButton::draw(NVGcontext* ctx) {
 void PopupButton::performLayout(NVGcontext *ctx) {
     Widget::performLayout(ctx);
 
-    const Window *parentWindow = window();
+    const Widget *parentWindow = mPopup->parentWindow();
 
     int posY = absolutePosition().y() - parentWindow->position().y() + mSize.y() /2;
     if (mPopup->side() == Popup::Right)

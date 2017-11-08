@@ -181,10 +181,6 @@ bool Window::scrollEvent(const Vector2i &p, const Vector2f &rel) {
     return true;
 }
 
-void Window::refreshRelativePlacement() {
-    /* Overridden in \ref Popup */
-}
-
 void Window::save(Serializer &s) const {
     Widget::save(s);
     s.set("title", mTitle);

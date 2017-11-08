@@ -202,6 +202,10 @@ void Widget::requestFocus() {
     ((Screen *) widget)->updateFocus(this);
 }
 
+void Widget::refreshRelativePlacement() {
+    /* Overridden in \ref Popup */
+}
+
 void Widget::draw(NVGcontext *ctx) {
     #if NANOGUI_SHOW_WIDGET_BOUNDS
         nvgStrokeWidth(ctx, 1.0f);
