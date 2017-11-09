@@ -29,10 +29,6 @@ PopupButton::PopupButton(Widget *parent, const std::string &caption, int buttonI
     mPopup->setVisible(false);
 }
 
-Vector2i PopupButton::preferredSize(NVGcontext *ctx) const {
-    return Button::preferredSize(ctx) + Vector2i(15, 0);
-}
-
 void PopupButton::draw(NVGcontext* ctx) {
     if (!mEnabled && mPushed)
         mPushed = false;
