@@ -73,12 +73,14 @@ set(GLFW_INSTALL OFF CACHE BOOL " " FORCE)
 set(GLFW_USE_CHDIR OFF CACHE BOOL " " FORCE)
 set(BUILD_SHARED_LIBS ${NANOGUI_BUILD_SHARED} CACHE BOOL " " FORCE)
 
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  # Quench annoying deprecation warnings when compiling GLFW on OSX
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-deprecated-declarations")
-endif()
+if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+  if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    # Quench annoying deprecation warnings when compiling GLFW on OSX
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-deprecated-declarations")
+  endif()
 
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ext/glfw" "ext_build/glfw")
+  add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/ext/glfw" "ext_build/glfw")
+endif()
 
 # Python support: add NANOGUI_PYTHON flag to all targets
 if (NANOGUI_BUILD_PYTHON)
@@ -211,10 +213,11 @@ if (NANOGUI_USE_GLAD)
   list(APPEND NANOGUI_EXTRA_INCS "${CMAKE_CURRENT_SOURCE_DIR}/ext/glad/include")
 endif()
 
-list(APPEND NANOGUI_EXTRA_INCS
-  "${CMAKE_CURRENT_SOURCE_DIR}/ext/glfw/include"
-  "${CMAKE_CURRENT_SOURCE_DIR}/ext/nanovg/src"
-)
+if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+  list(APPEND NANOGUI_EXTRA_INCS "${CMAKE_CURRENT_SOURCE_DIR}/ext/glfw/include")
+endif()
+
+list(APPEND NANOGUI_EXTRA_INCS "${CMAKE_CURRENT_SOURCE_DIR}/ext/nanovg/src")
 
 if (NOT NANOGUI_EIGEN_INCLUDE_DIR)
   set(NANOGUI_EIGEN_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/ext/eigen")
@@ -250,8 +253,12 @@ elseif(CMAKE_SYSTEM MATCHES "Linux" OR CMAKE_SYSTEM_NAME MATCHES "BSD")
   endif()
 endif()
 
-include_directories(${NANOGUI_EIGEN_INCLUDE_DIR} ext/glfw/include ext/nanovg/src include ${CMAKE_CURRENT_BINARY_DIR})
+set(NANOGUI_INCS ext/nanovg/src)
+if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+  list(APPEND NANOGUI_INCS ext/glfw/include)
+endif()
 
+include_directories(${NANOGUI_EIGEN_INCLUDE_DIR} ${NANOGUI_INCS} include ${CMAKE_CURRENT_BINARY_DIR})
 
 # Run simple cmake converter to put font files into the data segment
 
@@ -346,10 +353,12 @@ add_library(nanogui-obj OBJECT
   src/serializer.cpp
 )
 
-add_library(nanogui ${NANOGUI_LIBRARY_TYPE}
-  $<TARGET_OBJECTS:nanogui-obj>
-  $<TARGET_OBJECTS:glfw_objects>
-)
+set(NANOGUI_OBJECTS $<TARGET_OBJECTS:nanogui-obj>)
+if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+  list(APPEND NANOGUI_OBJECTS $<TARGET_OBJECTS:glfw_objects>)
+endif()
+
+add_library(nanogui ${NANOGUI_LIBRARY_TYPE} ${NANOGUI_OBJECTS})
 
 if (NANOGUI_BUILD_SHARED)
   set_property(TARGET nanogui-obj PROPERTY POSITION_INDEPENDENT_CODE ON)

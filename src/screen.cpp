@@ -173,12 +173,22 @@ Screen::Screen(const Vector2i &size, const std::string &caption, bool resizable,
     if (fullscreen) {
         GLFWmonitor *monitor = glfwGetPrimaryMonitor();
         const GLFWvidmode *mode = glfwGetVideoMode(monitor);
-        mGLFWWindow = glfwCreateWindow(mode->width, mode->height,
-                                       caption.c_str(), monitor, nullptr, dropCallback);
+#ifdef EMSCRIPTEN
+        mGLFWWindow = glfwCreateWindow(mode->width, mode->height, caption.c_str(), monitor, nullptr);
+#else
+        mGLFWWindow = glfwCreateWindow(mode->width, mode->height, caption.c_str(), monitor, nullptr, dropCallback);
+#endif
     } else {
-        mGLFWWindow = glfwCreateWindow(size.x(), size.y(),
-                                       caption.c_str(), nullptr, nullptr, dropCallback);
+#ifdef EMSCRIPTEN
+        mGLFWWindow = glfwCreateWindow(size.x(), size.y(), caption.c_str(), nullptr, nullptr);
+#else
+        mGLFWWindow = glfwCreateWindow(size.x(), size.y(), caption.c_str(), nullptr, nullptr, dropCallback);
+#endif
     }
+
+#ifdef EMSCRIPTEN
+    glfwSetDropCallback(mGLFWWindow, dropCallback);
+#endif
 
     if (!mGLFWWindow)
         throw std::runtime_error("Could not create an OpenGL " +
