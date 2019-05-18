@@ -252,6 +252,13 @@ protected:
     /// Free all resources used by the widget and any children
     virtual ~Widget();
 
+private:
+    /**
+     * Convenience function to share logic between both signatures of
+     * ``removeChild``.
+     */
+    void removeChildHelper(const std::vector<Widget *>::iterator& child_it);
+
 protected:
     Widget *mParent;
     ref<Theme> mTheme;
