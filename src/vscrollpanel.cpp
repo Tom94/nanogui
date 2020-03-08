@@ -87,8 +87,10 @@ void VScrollPanel::draw(NVGcontext *ctx) {
     float scrollh = height() *
         std::min(1.0f, height() / (float) mChildPreferredHeight);
 
-    if (mUpdateLayout)
+    if (mUpdateLayout) {
         child->performLayout(ctx);
+        mUpdateLayout = false;
+    }
 
     nvgSave(ctx);
     nvgTranslate(ctx, mPos.x(), mPos.y());
