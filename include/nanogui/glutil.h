@@ -467,7 +467,7 @@ struct Arcball {
     void setState(const Quaternionf &state) {
         mActive = false;
         mLastPos = Vector2i::Zero();
-        mQuat = state;
+        // mQuat = state;
         mIncr = Quaternionf::Identity();
     }
 
